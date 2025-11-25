@@ -38,9 +38,6 @@ class GymBooker:
         self.wait = WebDriverWait(self.driver, 10)
         self.day_time_list = items_to_book
 
-        if not self.email or self.password:
-            raise ValueError('Email and password are required. Please Enter the details in the .env file.')
-
         self.driver.get(url)
         self.driver.maximize_window()
 
@@ -166,7 +163,7 @@ class GymBooker:
                 return function(*args)
             except TimeoutException:
                 if i == retries - 1:
-                    raise TimeoutException(f"Error: done retrying {description}")
+                    raise ValueError(f"Error: done retrying {description}")
                 time.sleep(0.09)
 
     # main methods---------------------------------
@@ -177,6 +174,10 @@ class GymBooker:
             presence_of_element_located((By.ID, 'login-button'))
         )
         login_btn.click()
+
+        if '@' not in self.email or not self.password:
+            raise ValueError(
+                'You need to enter a valid email and password . Please Enter the details in the .env file.')
 
         my_email = self.wait.until(
             ec.presence_of_element_located((By.ID, 'email-input'))
@@ -343,7 +344,7 @@ class GymBooker:
 
         verified_bookings = expected_set.intersection(found_set)
 
-        return verified_bookings
+        return found_set
 
 
 day_time_list = [('Thu', '6:00'), ('Fri', '6:00'), ('Fri', '8:00'), ('Fri', '6:00')]
